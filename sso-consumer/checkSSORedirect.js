@@ -1,7 +1,7 @@
 const url = require("url");
 const jwt = require("jsonwebtoken");
 const authSecret = "signingKey";
-
+const {verifyJwtToken} = require("./jwt_verify")
 const ssoRedirect = () => {
   return async function(req, res, next) {
     console.log('ssoRedirect')
@@ -10,9 +10,9 @@ const ssoRedirect = () => {
     if (JWT_TOKEN != null) {
       try {
         console.log(authSecret, JWT_TOKEN)
-        const decoded = jwt.verify(JWT_TOKEN, authSecret, {algorithms:["HS256"]});
+        const decoded = await verifyJwtToken(JWT_TOKEN)
         console.log(decoded)
-        req.session.user = decoded.sub;
+        req.session.user = decoded.username;
         console.log(req.session.user)
         return next()
       } catch (err) {

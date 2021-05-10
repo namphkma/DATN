@@ -11,14 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JwtUtil {
-    public static String generateToken(String signingKey, final String subject) throws UnsupportedEncodingException {
-        System.out.println(
-                javax.xml.bind.DatatypeConverter.printBase64Binary(
-                        javax.xml.bind.DatatypeConverter.parseBase64Binary(signingKey))+"\n"+signingKey );
+    public static String generateToken(String signingKey, final Map<String, Object> claims) throws UnsupportedEncodingException {
         JwtBuilder builder = Jwts.builder()
-                .setSubject(subject)
-                .signWith(SignatureAlgorithm.HS256, signingKey.getBytes("UTF-8"));
-
+                .setClaims(claims)
+                .signWith(SignatureAlgorithm.HS256, signingKey);
         return builder.compact();
     }
 

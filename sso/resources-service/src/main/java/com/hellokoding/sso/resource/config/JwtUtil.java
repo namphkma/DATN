@@ -1,4 +1,4 @@
-package com.hellokoding.sso.resource;
+package com.hellokoding.sso.resource.config;
 
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -7,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.Map;
 
 public class JwtUtil {
     public static String generateToken(String signingKey, String subject) {
@@ -21,10 +22,12 @@ public class JwtUtil {
         return builder.compact();
     }
 
-    public static String getSubject(HttpServletRequest httpServletRequest, String jwtTokenCookieName, String signingKey) throws UnsupportedEncodingException {
+    public static Map<String, Object> getSubject(HttpServletRequest httpServletRequest, String jwtTokenCookieName, String signingKey) throws UnsupportedEncodingException {
         String token = CookieUtil.getValue(httpServletRequest, jwtTokenCookieName);
         if(token == null) return null;
-        return Jwts.parser().setSigningKey(signingKey.getBytes("UTF-8")).parseClaimsJws(token).getBody().getSubject();
+        Map<String, Object> claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token).getBody();
+        return claims;
+
     }
 }
 

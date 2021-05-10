@@ -2,10 +2,10 @@ const jwt = require("jsonwebtoken");
 
 const verifyJwtToken = token =>
   new Promise((resolve, reject) => {
-    console.log(token)
+    console.log(new Buffer([...Buffer.from('signingKeyab', "base64")]))
     jwt.verify(
       token,
-      "signingKey",
+      new Buffer([...Buffer.from('signingKeyab', "base64")]),
       {algorithms: ["HS256"] },
       (err, decoded) => {
         if (err) return reject(err);

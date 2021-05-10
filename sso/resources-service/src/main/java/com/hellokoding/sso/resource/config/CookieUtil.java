@@ -1,4 +1,4 @@
-package com.hellokoding.sso.resource;
+package com.hellokoding.sso.resource.config;
 
 import org.springframework.web.util.WebUtils;
 import javax.servlet.http.Cookie;
