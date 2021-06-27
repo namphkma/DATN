@@ -8,3 +8,12 @@
 2021/05/06 16:36:48 [emerg] 9976#12696: unexpected "}" in D:\Private\sso\DATN\nginx-1.20.0/conf/nginx.conf:45
 2021/05/06 16:37:01 [emerg] 2812#3944: unexpected "}" in D:\Private\sso\DATN\nginx-1.20.0/conf/nginx.conf:45
 2021/05/06 16:38:17 [notice] 11352#4360: signal process started
+2021/05/23 11:22:45 [emerg] 1712#16588: CreateFile() "D:\Private\sso\DATN\nginx-1.20.0/conf/nginx.conf" failed (2: The system cannot find the file specified)
+2021/05/23 11:23:22 [emerg] 15152#13572: CreateFile() "D:\Private\sso\DATN\nginx-1.20.0/conf/nginx.conf" failed (2: The system cannot find the file specified)
+2021/05/23 11:23:47 [emerg] 7656#7120: CreateFile() "D:\Private\sso\DATN\nginx-1.20.0/conf/nginx.conf" failed (2: The system cannot find the file specified)
+2021/05/23 11:24:01 [emerg] 5320#19016: no "events" section in configuration
+2021/05/23 11:39:35 [error] 4356#10436: *21 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index HTTP/1.1", upstream: "http://[::1]:8082/index", host: "localhost"
+2021/05/23 11:39:37 [error] 4356#10436: *21 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index HTTP/1.1", upstream: "http://127.0.0.1:8082/index", host: "localhost"
+2021/05/23 11:39:39 [error] 4356#10436: *21 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index HTTP/1.1", upstream: "http://[::1]:8081/index", host: "localhost"
+2021/05/23 11:39:42 [error] 4356#10436: *21 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index HTTP/1.1", upstream: "http://127.0.0.1:8081/index", host: "localhost"
+2021/05/23 11:39:42 [error] 4356#10436: *21 no live upstreams while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", upstream: "http://backend/favicon.ico", host: "localhost", referrer: "http://localhost/index"

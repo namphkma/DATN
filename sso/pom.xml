@@ -10,7 +10,9 @@
 
     <modules>
         <module>resources-service</module>
+        <module>resources-service-1</module>
         <module>auth-service</module>
+        <module>admin-resources-service</module>
     </modules>
 
     <properties>

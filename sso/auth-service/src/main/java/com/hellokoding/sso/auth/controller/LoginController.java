@@ -44,34 +44,49 @@ public class LoginController {
     }
 
     @RequestMapping("/")
-    public String home(){
+    public String home() {
         return "redirect:/login";
     }
 
     @GetMapping("/login")
-    public String login(HttpServletResponse httpServletResponse, String redirect, HttpSession httpSession) throws UnsupportedEncodingException {
-        if(Objects.nonNull(httpSession.getAttribute(JwtKey.USERNAME))){
+    public String login(HttpServletResponse httpServletResponse, String redirect, HttpSession httpSession) throws UnsupportedEncodingException, AccessDeniedException {
+        if (Objects.nonNull(httpSession.getAttribute(JwtKey.USERNAME))) {
             String username = (String) httpSession.getAttribute("username");
-            Map<String, Object> info= new HashMap<>();
-            info.put(JwtKey.USERNAME, username);
-            info.put(JwtKey.SERVICE, redirect);
-            info.put(JwtKey.SESSION, httpSession.getId());
-            String token = JwtUtil.generateToken(config.getJwtKey(), info);
-            CookieUtil.create(httpServletResponse, JwtKey.JWT_COOKIE_NAME, token, false, -1, "localhost");
-            return "redirect:" + redirect;
+            Optional<User> userOptional = userRepository.findByEmail(username);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                if (
+                        redirect.equalsIgnoreCase("http://localhost:8082/") && User.Role.USER.equals(user.getRole())
+                ) {
+                    throw new AccessDeniedException("Not Permission");
+                }
+                Map<String, Object> info = new HashMap<>();
+                info.put(JwtKey.USERNAME, username);
+                info.put(JwtKey.SERVICE, redirect);
+                info.put(JwtKey.SESSION, httpSession.getId());
+                String token = JwtUtil.generateToken(config.getJwtKey(), info);
+                CookieUtil.create(httpServletResponse, JwtKey.JWT_COOKIE_NAME, token, false, -1, "localhost");
+                return "redirect:" + redirect;
+            }
+
         }
         return "login";
     }
 
     @PostMapping(value = "login")
-    public String login(HttpServletResponse httpServletResponse, String username, String password, String redirect, Model model, HttpSession httpSession) throws UnsupportedEncodingException {
+    public String login(HttpServletResponse httpServletResponse, String username, String password, String redirect, Model model, HttpSession httpSession) throws UnsupportedEncodingException, AccessDeniedException {
         Optional<User> user = userRepository.findByEmail(username);
         if (username == null || !user.isPresent() || !passwordEncoder.matches(password, user.get().getPassword())) {
             model.addAttribute("error", "Invalid username or pass" +
                     "word!");
             return "login";
         }
-        Map<String, Object> info= new HashMap<>();
+        if (
+                redirect.equalsIgnoreCase("http://localhost:8082/") && User.Role.USER.equals(user.get().getRole())
+        ) {
+            throw new AccessDeniedException("Not Permission");
+        }
+        Map<String, Object> info = new HashMap<>();
         info.put(JwtKey.USERNAME, username);
         info.put(JwtKey.SERVICE, redirect);
         info.put(JwtKey.SESSION, httpSession.getId());
@@ -93,7 +108,7 @@ public class LoginController {
     @ResponseBody
     public UserInfoDto getInfoByToken(HttpServletResponse response, HttpSession session, @RequestBody RequestUserInfoDto token) throws IOException {
         Map<String, Object> data = jwtTokenProvider.getDataFromJWT(token.getToken());
-        String username= (String) data.get(JwtKey.USERNAME);
+        String username = (String) data.get(JwtKey.USERNAME);
         if (!username.equalsIgnoreCase((String) session.getAttribute(JwtKey.USERNAME))) {
             throw new AccessDeniedException("Not Permission");
         }
