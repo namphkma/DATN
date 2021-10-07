@@ -1,4 +1,4 @@
-package com.hellokoding.sso.auth.dto;
+package com.hellokoding.sso.auth.dto.request;
 
 import lombok.Data;
 

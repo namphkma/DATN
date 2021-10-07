@@ -26,7 +26,7 @@ const updateUrlById =  (id, data, connection)=>{
     })
 }
 
-const insertUrl = (data) => {
+const insertUrl = (data, connection) => {
     return new Promise(async (resolve, reject) => {
         try {
             const query = 'INSERT INTO `datn`.`url` (`domain`, `path`, `config`, `status`, `home_link`) VALUES (?, ?, ?, ?, ?)'

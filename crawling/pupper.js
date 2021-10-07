@@ -10,7 +10,7 @@ const {insertArticles} = require('./service/ArticleService')
 const mysql      = require('mysql');
 
 const connection = mysql.createConnection({
-    host     : '125.212.235.151',
+    host     : 'localhost',
     user     : 'root',
     password : '123456',
     database : 'datn',
@@ -37,17 +37,19 @@ const jsonConfig = {
         selector: ".dt-news__time"
     }
 }
-const result = {
-    title: "",
-    subtitle: "",
-    content: [],
-    img: [],
-    fullyContent: ""
-}
 
 
-const runCrawlingData = ((url, jsonConfig, tag) => {
+const runCrawlingData = ((url, jsonConfig, root_url, tag) => {
     return new Promise(async(resolve, reject) => {
+        const result = {
+            title: "",
+            subtitle: "",
+            content: [],
+            img: [],
+            fullyContent: "",
+            home_link: url,
+            type: tag
+        }
         let urlEntity = '';
         try {
             const browser = await puppeteer.launch(optionPuppeteer);
@@ -57,6 +59,7 @@ const runCrawlingData = ((url, jsonConfig, tag) => {
             if (await isExistingUrl(rootUrl, connection)) {
                 console.warn("Url exist: ", rootUrl);
                 await browser.close();
+                resolve(true);
                 return;
             }
             const html = await page.content();
@@ -65,7 +68,7 @@ const runCrawlingData = ((url, jsonConfig, tag) => {
             const checkExistingUrl = await getUrlByPath(rootUrl, connection);
             if (checkExistingUrl) {
                 urlEntity = await updateUrlById(checkExistingUrl.id, {
-                    url: tag,
+                    url: root_url,
                     path: rootUrl,
                     config: '',
                     status: URL_STATUS.PENDING,
@@ -73,7 +76,7 @@ const runCrawlingData = ((url, jsonConfig, tag) => {
                 }, connection)
             } else {
                 urlEntity = await insertUrl({
-                    url: tag,
+                    url: root_url,
                     path: rootUrl,
                     config: '',
                     status: URL_STATUS.PENDING,
@@ -105,7 +108,7 @@ const runCrawlingData = ((url, jsonConfig, tag) => {
 
                 }
             })
-            result.tag = tag;
+            result.tag = root_url;
             result.url = rootUrl;
             result.time = time;
 
@@ -116,12 +119,13 @@ const runCrawlingData = ((url, jsonConfig, tag) => {
             console.error('error', url);
             console.error(e)
             await updateUrlById(urlEntity.id, {
-                url: tag,
+                url: root_url,
                 path: urlEntity.path,
                 config: '',
                 status: URL_STATUS.ERROR,
                 home_link: url
             }, connection)
+            resolve(false);
         }
     })
 });
@@ -143,7 +147,7 @@ const runCrawlingGetSpecificNews = async (tagUrl, root) => {
             console.log('ignore ', (root + href));
             continue;
         } else {
-            await runCrawlingData(root + href, jsonConfig, root)
+            await runCrawlingData(root + href, jsonConfig, root, href.split('/')[1])
         }
     }
 };
@@ -164,6 +168,7 @@ const runCrawlingGetTag = (async (webUrl) => {
             await runCrawlingGetSpecificNews(webUrl + href, webUrl);
         }
     }
+    console.log('finish');
 });
 
 // (async () => {

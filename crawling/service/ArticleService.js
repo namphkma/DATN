@@ -1,5 +1,8 @@
+const {insertTag} = require("./TagsService");
+const {getTagByName} = require("./TagsService");
 const {excuteQuery} = require('../model/MySql');
 const {URL_STATUS, updateUrlById, getUrlByPath} = require('./UrlService')
+
 const insertArticles = (article, connection) => {
     return new Promise(async (resolve, reject) => {
         let resultUrl = '';
@@ -12,7 +15,8 @@ const insertArticles = (article, connection) => {
                 url_id: resultUrl.id,
                 content: article.fullyContent,
                 json_raw_content: JSON.stringify(article),
-                images: JSON.stringify(article.img)
+                images: JSON.stringify(article.img),
+                type: article.type
             }
             let resultArticle ='';
             const isArticlesExist = await getArticlesByUrlId(resultUrl.id, connection);
@@ -22,18 +26,15 @@ const insertArticles = (article, connection) => {
                 resultArticle = await createArticles(articleObject, connection);
             }
             await updateUrlById(resultUrl.id, {
-                url: article.tag,
-                path: article.url,
-                config: '',
+                ...resultUrl,
                 status: URL_STATUS.DONE
             }, connection)
+            await addArticlesToTagByName(articleObject.type, resultArticle, connection);
             resolve(resultArticle);
         } catch (err) {
             if (resultUrl) {
                 await updateUrlById(resultUrl.id, {
-                    url: article.tag,
-                    path: article.url,
-                    config: '',
+                    ...resultUrl,
                     status: URL_STATUS.ERROR
                 })
             }
@@ -98,6 +99,23 @@ const createArticles = (data, connection) => {
             id: resultArticle.insertId,
             ...data
         })
+    })
+}
+
+const addArticlesToTagByName = (name, articles, connection) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let tag = await getTagByName(name, connection);
+            if(!tag){
+                tag = await insertTag(name, connection);
+            }
+            const query = 'INSERT INTO `articles_tags` (`article_id`, `tag_id`) values (?,?)';
+            await excuteQuery(query, [articles.id, tag.id], connection);
+            resolve(true);
+        }
+         catch (e) {
+            reject(e)
+        }
     })
 }
 
